@@ -1,0 +1,10 @@
+.venv/
+build/
+dist/
+__pycache__/
+*.pyc
+
+# Personal reminder sound — supply your own locally, not meant to ship in the repo
+*.wav
+*.mp3
+*.ogg
