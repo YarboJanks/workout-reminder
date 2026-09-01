@@ -3,6 +3,7 @@ name: Build
 on:
   push:
     branches: [main]
+    tags: ["v*"]
   workflow_dispatch: {}
 
 jobs:
@@ -54,3 +55,30 @@ jobs:
         with:
           name: Workout Reminder-windows
           path: dist/Workout Reminder.exe
+
+  release:
+    needs: [build-mac, build-windows]
+    if: startsWith(github.ref, 'refs/tags/v')
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/download-artifact@v4
+        with:
+          name: Workout Reminder-mac
+          path: artifacts
+
+      - uses: actions/download-artifact@v4
+        with:
+          name: Workout Reminder-windows
+          path: artifacts
+
+      - name: Create release
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          gh release create "${{ github.ref_name }}" \
+            artifacts/"Workout Reminder-mac.zip" \
+            artifacts/"Workout Reminder.exe" \
+            --title "${{ github.ref_name }}" \
+            --notes "Automated build for ${{ github.ref_name }}."
